@@ -60,6 +60,9 @@ namespace mango
 		bool	converToHU = false;		// whether the image has been conver to HU
 		float	waterMu;				// mu of water
 
+		bool	helicalScan = false;	// whether fpj is for a helical scan
+		float	helicalPitch;			// helical pitch value
+
 	};
 
 

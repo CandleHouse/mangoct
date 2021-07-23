@@ -603,7 +603,7 @@ __global__ void BackprojectPixelDriven_pmatrix_device(float* sgm, float* img, fl
 				float one_divide_mag = pmatrix[pos_in_matrix + 8] * x + pmatrix[pos_in_matrix + 9] * y + pmatrix[pos_in_matrix + 10] * z + pmatrix[pos_in_matrix + 11] * 1;
 				
 				//the pmatrix is calculated when the detector is binned with 4 pixels
-				// each after binning is 0.4 mm
+				// each pixel size after binning is 0.4 mm
 				float k_f_bin_4 = k_u_divide_mag / one_divide_mag;//float number of k_f_bin_4
 				float u_position_true = (k_f_bin_4 + 0.5f)*0.4;
 				float k_f = u_position_true / du - 0.5f;

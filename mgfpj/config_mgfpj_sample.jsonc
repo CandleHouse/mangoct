@@ -49,7 +49,7 @@
   "SliceCount": 1,
 
   // (OPTIONAL) Whether the cone beam recon is needed
-  // in case of "false", all other items relted to cone beam recon will be null
+  // in case of "false", all other items related to cone beam recon will be null
   "ConeBeam": false,
   // (OPTIONAL; for cone beam) image slice thickness [mm]
   "ImageSliceThickness": 0.43,
