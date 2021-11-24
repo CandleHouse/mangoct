@@ -192,7 +192,7 @@ __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const f
 				}
 			}
 
-			sgm[row*N + col] *= STEPSIZE * sqrt(dx*dx + dz * dz);
+			sgm[row*N + col] *= STEPSIZE * sqrt(dx*dx + dz * dz/2.0f);
 
 		}
 	}
