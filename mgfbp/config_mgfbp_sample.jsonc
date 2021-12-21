@@ -31,7 +31,7 @@
   // number of slices in each sinogram file
   "SliceCount": 1,
   // (FOR CONE BEAM; OPTIONAL) slice thickness for cone beam reconstruction [mm]
-  "SliceThinkness": 6,
+  "SliceThickness": 6,
   // (FOR CONE BEAM; OPTIONAL) slice offcenter distance [mm]
   "SliceOffCenter": 0,
 
