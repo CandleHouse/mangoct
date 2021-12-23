@@ -1,0 +1,7 @@
+{
+  "C_Cpp.default.includePath": [
+    "${default}",
+    "${vcpkgRoot}\\x86-windows\\include",
+    "${CUDA_PATH}\\include"
+  ]
+}
