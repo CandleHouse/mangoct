@@ -1108,7 +1108,7 @@ void FilterSinogram_Agent(float * sgm, float* sgm_flt, float* reconKernel, float
 		WeightSinogramHilbert_device << <grid, block >> > (sgm, u, config.sgmWidth, config.sgmHeight, config.sliceCount, config.sdd);
 	else if (config.kernelName == "Hilbert_angle")
 	{
-		printf("Kernel name: %s\n", config.kernelName);
+		printf("Kernel name: %s\n", config.kernelName.c_str());
 		WeightSinogramHilbert_angle_device << <grid, block >> > (sgm, u, config.sgmWidth, config.sgmHeight, config.sliceCount, config.sdd);
 	}
 	else if (config.kernelName == "None")
