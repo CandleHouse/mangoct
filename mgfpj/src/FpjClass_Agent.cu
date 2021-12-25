@@ -219,7 +219,7 @@ void InitializeDistance_Agent(float* &distance_array, const float distance, cons
 
 void InitializeNonuniformSDD_Agent(float* &distance_array, const int V, const std::string& distanceFile)
 {
-	namespace fs = std::filesystem;
+	// namespace fs = std::filesystem;
 	namespace js = rapidjson;
 
 	if (distance_array != nullptr)
@@ -268,7 +268,7 @@ void InitializeNonuniformSDD_Agent(float* &distance_array, const int V, const st
 
 void InitializeNonuniformSID_Agent(float* &distance_array, const int V, const std::string& distanceFile)
 {
-	namespace fs = std::filesystem;
+	// namespace fs = std::filesystem;
 	namespace js = rapidjson;
 
 	if (distance_array != nullptr)
@@ -313,7 +313,7 @@ void InitializeNonuniformSID_Agent(float* &distance_array, const int V, const st
 
 void InitializeNonuniformOffCenter_Agent(float* &offcenter_array, const int V, const std::string& offCenterFile)
 {
-	namespace fs = std::filesystem;
+	// namespace fs = std::filesystem;
 	namespace js = rapidjson;
 
 	if (offcenter_array != nullptr)
@@ -359,7 +359,7 @@ void InitializeNonuniformOffCenter_Agent(float* &offcenter_array, const int V, c
 //new function with Value member to suit all non uniform parameters
 void InitializeNonuniformPara_Agent(float* &para_array, const int V, const std::string& paraFile)
 {
-	namespace fs = std::filesystem;
+	// namespace fs = std::filesystem;
 	namespace js = rapidjson;
 
 	if (para_array != nullptr)
@@ -424,7 +424,7 @@ void InitializeBeta_Agent(float *& beta, const int V, const float startAngle, co
 
 void InitializeNonuniformBeta_Agent(float* &beta, const int V, const float rotation, const std::string& scanAngleFile)
 {
-	namespace fs = std::filesystem;
+	// namespace fs = std::filesystem;
 	namespace js = rapidjson;
 
 	if (beta != nullptr)

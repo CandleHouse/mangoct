@@ -3,5 +3,11 @@
     "${default}",
     "${vcpkgRoot}\\x86-windows\\include",
     "${CUDA_PATH}\\include"
-  ]
+  ],
+  "files.associations": {
+    "*.wxml": "html",
+    "*.wxss": "css",
+    "*.cu": "cpp",
+    "filesystem": "cpp"
+  }
 }

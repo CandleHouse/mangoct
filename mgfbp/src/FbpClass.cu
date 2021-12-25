@@ -34,7 +34,7 @@ mango::FbpClass::~FbpClass()
 // acquire the list of file names in the dir that matches filter
 std::vector<std::string> GetInputFileNames(const std::string& dir, const std::string& filter)
 {
-	namespace fs = std::filesystem;
+	// namespace fs = std::filesystem;
 
 	std::vector<std::string> filenames;
 
@@ -85,7 +85,7 @@ std::vector<std::string> GetOutputFileNames(const std::vector<std::string>& inpu
 // read and parse config file
 void mango::FbpClass::ReadConfigFile(const char * filename)
 {
-	namespace fs = std::filesystem;
+	// namespace fs = std::filesystem;
 	namespace js = rapidjson;
 
 	// load the config file
