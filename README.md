@@ -29,7 +29,7 @@ This is a fork version of [mangoct](https://github.com/ustcfdm/mangoct) tomograp
      
      - Set `INCLUDE_INSTALL_DIR`, `LIB_INSTALL_DIR`, `DOC_INSTALL_DIR`.
      
-     - Check `RAPIDJSON_BUILD_CXX17`.
+     - Check `RAPIDJSON_BUILD_CXX17`, uncheck `RAPIDJSON_BUILD_CXX11`.
      
      - Uncheck `RAPIDJSON_BUILD_DOC`, `RAPIDJSON_BUILD_EXAMPLES`, `RAPIDJSON_BUILD_TESTS`.
      
