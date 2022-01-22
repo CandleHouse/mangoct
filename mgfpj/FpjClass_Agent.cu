@@ -133,7 +133,7 @@ __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const f
 			}
 
 			// calculate line integration
-			for (float L = L_min; L <= L_max; L+= STEPSIZE*sqrt(dx*dx+dz*dz/2.0f))
+			for (float L = L_min; L <= L_max; L+= STEPSIZE*dx)
 			{
 				// ratio of [distance: current position to source] to [distance: source to element]
 				float ratio_L_sed = L / sed;
@@ -157,7 +157,7 @@ __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const f
 				ky = floorf((y0 - y) / dx);
 
 				if (conebeam)
-					kz = floorf((z - z0) / dz);
+					kz = roundf((z - z0) / dz);// floorf((z - z0) / dz);
 
 				// get the image pixel value at the current point
 				if(kx>=0 && kx+1<M && ky>=0 && ky+1<M)
@@ -176,6 +176,7 @@ __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const f
 					}
 					else if (conebeam == true && kz >= 0 && kz + 1 < S)
 					{
+						/*
 						wz = (z - kz * dz - z0) / dz;
 						float sgm_val_lowerslice = (1 - wx)*(1 - wy)*img[ky*M + kx + M * M*kz] // upper left
 							+ wx * (1 - wy) * img[ky*M + kx + 1 + M * M*kz] // upper right
@@ -184,15 +185,24 @@ __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const f
 						float sgm_val_upperslice = (1 - wx)*(1 - wy)*img[ky*M + kx + M * M*(kz+1)] // upper left
 							+ wx * (1 - wy) * img[ky*M + kx + 1 + M * M*(kz + 1)] // upper right
 							+ (1 - wx) * wy * img[(ky + 1)*M + kx + M * M*(kz + 1)] // bottom left
-							+ wx * wy * img[(ky + 1)*M + kx + 1 + M * M*(kz + 1)];	// bottom right
+							+ wx * wy * img[(ky + 1)*M + kx + 1 + M * M*(kz + 1)];	// bottom right 
+							*/
 
-						sgm[row*N + col] += (1 - wz)*sgm_val_lowerslice + wz * sgm_val_upperslice;
+						float sgm_val_temp = (1 - wx)*(1 - wy)*img[ky*M + kx + M * M*kz] // upper left
+							+ wx * (1 - wy) * img[ky*M + kx + 1 + M * M*kz] // upper right
+							+ (1 - wx) * wy * img[(ky + 1)*M + kx + M * M*kz] // bottom left
+							+ wx * wy * img[(ky + 1)*M + kx + 1 + M * M*kz];	// bottom right
+
+
+
+
+						sgm[row*N + col] += sgm_val_temp;//(1 - wz)*sgm_val_lowerslice + wz * sgm_val_upperslice;
 					}
 					
 				}
 			}
 
-			sgm[row*N + col] *= STEPSIZE * sqrt(dx*dx + dz * dz/2.0f);
+			sgm[row*N + col] *= STEPSIZE * dx;
 
 		}
 	}
