@@ -15,6 +15,7 @@ set(SOURCES
     src/FbpClass.cu
     src/FbpClass_Agent.cu
 )
+include_directories("${CUDA_INCLUDE_DIRS}")
 add_executable(mgfbp ${SOURCES})
 
 # Target
