@@ -15,6 +15,7 @@ set(SOURCES
     src/FpjClass.cpp
     src/FpjClass_Agent.cu
 )
+include_directories("${CUDA_INCLUDE_DIRS}")
 add_executable(mgfpj ${SOURCES})
 
 # Target
