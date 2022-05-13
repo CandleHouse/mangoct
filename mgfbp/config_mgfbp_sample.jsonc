@@ -62,6 +62,9 @@
   *********************************************************/
   // (OPTIONAL; for recon with pmatrix)
   "PMatrixFile": "pmatrix_file_sample.jsonc",
+  // (OPTIONAL; for recon with pmatrix)
+  // (and pmatrix is calibrated using a different detector binning than the recon)
+  "PmatrixDetectorElementSize":0.4,
 
   // Beam hardening correction (optional), support 10 parameters [s = p0 + p1*s + p2*s^2 + p3*s^3 + ...]
   //"BeamHardeningCorrection": [ 0, 1, 2, 3, 4, 5 ],

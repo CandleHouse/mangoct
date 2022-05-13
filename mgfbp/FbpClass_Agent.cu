@@ -546,14 +546,16 @@ __global__ void BackprojectPixelDriven_device(float* sgm, float* img, float* u, 
 	}
 }
 
-__global__ void BackprojectPixelDriven_pmatrix_device(float* sgm, float* img, float* u, float* v, float* beta, float* pmatrix, \
+__global__ void BackprojectPixelDriven_pmatrix_device(float* sgm, float* img, float* u, float* v, float* beta, float* pmatrix, float pmatrix_eltsize, \
 	bool shortScan, const int N, const int V, const int S, bool coneBeam, const int M, const int imgS, float* sdd_array, float* sid_array, \
 	const float dx, const float dz, const float xc, const float yc, const float zc, int imgS_idx, float imgRot)
+//pmatrix_du is the detector elements size when pmatrix calibration is performed
 {
 	int col = threadIdx.x + blockDim.x * blockIdx.x;
 	int row = threadIdx.y + blockDim.y * blockIdx.y;
 
 	float du = u[1] - u[0];
+	float dv = v[1] - v[0];
 	float imgRot_in_rad = imgRot * PI / 180.0f;
 	if (col < M && row < M && imgS_idx < imgS)
 	{
@@ -601,12 +603,12 @@ __global__ void BackprojectPixelDriven_pmatrix_device(float* sgm, float* img, fl
 				int pos_in_matrix = 12 * view;
 				float k_u_divide_mag = pmatrix[pos_in_matrix] * x + pmatrix[pos_in_matrix + 1] * y + pmatrix[pos_in_matrix + 2] * z + pmatrix[pos_in_matrix + 3] * 1;
 				float one_divide_mag = pmatrix[pos_in_matrix + 8] * x + pmatrix[pos_in_matrix + 9] * y + pmatrix[pos_in_matrix + 10] * z + pmatrix[pos_in_matrix + 11] * 1;
+
+				// the pmatrix maybe calculated when the detector is another binning mode than the recon
+				float k_f = k_u_divide_mag / one_divide_mag;// float number of k
+				float u_position_true = (k_f + 0.5f)*pmatrix_eltsize;// convert the u_position to real physical size
+				k_f = u_position_true / du - 0.5f;// convert the u_position to current pixel index
 				
-				//the pmatrix is calculated when the detector is binned with 4 pixels
-				// each pixel size after binning is 0.4 mm
-				float k_f_bin_4 = k_u_divide_mag / one_divide_mag;//float number of k_f_bin_4
-				float u_position_true = (k_f_bin_4 + 0.5f)*0.4;
-				float k_f = u_position_true / du - 0.5f;
 
 				//float k_f = k_u_divide_mag / one_divide_mag;//float number of k
 				k = floorf(k_f);
@@ -631,6 +633,11 @@ __global__ void BackprojectPixelDriven_pmatrix_device(float* sgm, float* img, fl
 				{
 					float k_z_divide_mag = pmatrix[pos_in_matrix + 4] * x + pmatrix[pos_in_matrix + 5] * y + pmatrix[pos_in_matrix + 6] * z + pmatrix[pos_in_matrix + 7] * 1;
 					float k_z_f = k_z_divide_mag / one_divide_mag;//float number of k_z
+					// the pmatrix maybe calculated when the detector is another binning mode than the recon
+					float v_position_true = (k_z_f + 0.5f)*pmatrix_eltsize;// convert the u_position to real physical size
+					k_z_f = v_position_true / dv - 0.5f;// convert the u_position to current pixel index
+
+
 					k_z = floorf(k_z_f);
 					if (k_z<0 || k_z + 1>S - 1)
 					{
@@ -1147,7 +1154,7 @@ void BackprojectPixelDriven_Agent(float * sgm_flt, float * img, float* sdd_array
 	}
 	else if (config.pmatrixFlag == true)// if pmatrix is applied
 	{
-		BackprojectPixelDriven_pmatrix_device << <grid, block >> > (sgm_flt, img, u, v, beta, pmatrix_array, config.shortScan, config.sgmWidth, config.views, \
+		BackprojectPixelDriven_pmatrix_device << <grid, block >> > (sgm_flt, img, u, v, beta, pmatrix_array, config.pmatrixDetEltSize, config.shortScan, config.sgmWidth, config.views, \
 			config.sliceCount, config.coneBeam, config.imgDim, config.imgSliceCount, sdd_array, sid_array, config.pixelSize, config.imgSliceThickness, \
 			config.xCenter, config.yCenter, config.zCenter, z_idx, config.imgRot);
 	}
