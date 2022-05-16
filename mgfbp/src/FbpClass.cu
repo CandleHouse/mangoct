@@ -3,6 +3,15 @@
 
 #include "FbpClass_Agent.cuh"
 
+// https://gist.github.com/jefflarkin/5390993
+//Macro for checking cuda errors following a cuda launch or api call
+#define cudaCheckError() {                                          \
+ cudaError_t e=cudaGetLastError();                                 \
+ if(e!=cudaSuccess) {                                              \
+   printf("\nCuda failure %s:%d: '%s'\n",__FILE__,__LINE__,cudaGetErrorString(e));           \
+   exit(-1); \
+ }                                                                 \
+}
 
 mango::Config mango::FbpClass::config;
 float* mango::FbpClass::sid_array = nullptr;
@@ -567,6 +576,7 @@ void mango::FbpClass::BackprojectPixelDrivenAndSave(const char* filename)
 
 		SaveReconImageSlice(filename, image, z_idx, config);
 
+		cudaCheckError();
 		
 	}
 }

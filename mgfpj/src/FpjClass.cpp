@@ -2,6 +2,16 @@
 #include "FpjClass_Agent.cuh"
 #include "stdafx.h"
 
+// https://gist.github.com/jefflarkin/5390993
+//Macro for checking cuda errors following a cuda launch or api call
+#define cudaCheckError() {                                          \
+ cudaError_t e=cudaGetLastError();                                 \
+ if(e!=cudaSuccess) {                                              \
+   printf("\nCuda failure %s:%d: '%s'\n",__FILE__,__LINE__,cudaGetErrorString(e));           \
+   exit(-1); \
+ }                                                                 \
+}
+
 mango::Config mango::FpjClass::config;
 float* mango::FpjClass::sdd_array = nullptr;
 float* mango::FpjClass::sid_array = nullptr;
@@ -453,5 +463,8 @@ void mango::FpjClass::ForwardProjectionBilinearAndSave(const char* filename)
 		cudaDeviceSynchronize();
 
 		SaveSinogramSlice(filename, sinogram, z_idx, config);
+
+		cudaCheckError();
+
 	}	
 }
