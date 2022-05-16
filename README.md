@@ -32,10 +32,12 @@ This is a fork version of [mangoct](https://github.com/ustcfdm/mangoct) tomograp
 
   - Check the correct CUDA is selected if there are multiple CUDAs on your system. Most `CUDA_*_LIBRARY` should points to somewhere in your CUDA installation path.
 
+  - Align `CMAKE_CUDA_ARCHITECTURES` according to your GPU's [Compute Capability](https://developer.nvidia.com/cuda-gpus) to get best performance and avoid errors.
+
   - Set `CMAKE_INSTALL_PREFIX` to the path where compiled binary files should be saved.
 
   - *Maybe* you need to remove `stdc++fs` library link if your compiler fully supports `<filesystem>` header with only `-std=c++17` flag.
-
+  
     ```cmake
     # mgfpj/CMakeLists.txt and mgfbp/CMakeLists.txt
     target_link_libraries(<project_name>
