@@ -1,4 +1,4 @@
-# mangoct-linux
+# mangoct-cmake
 
 <p align="center">
     <img src="demo.png"></img>
@@ -9,89 +9,53 @@ This is a fork version of [mangoct](https://github.com/ustcfdm/mangoct) tomograp
 ## Prerequisites
 
 - GCC with `<filesystem>` or `<experimental/filesystem>` and C++ 17 support
-- CMake
+- CMake > 3.18
 - NVIDIA GPU with CUDA > 10
 
 ## Installation
 
-1. **Install [RapidJSON](https://github.com/Tencent/rapidjson) first.** (Dependency of mangoct)
+- Clone
 
-   - Clone or download
+  ```sh
+  git clone git@github.com:z0gSh1u/mangoct-linux.git --recursive # recursive to include rapidjson
+  ```
 
-       ```sh
-       git clone git@github.com:Tencent/rapidjson.git --depth=1
-       # or `wget` the zip file
-       ```
-   
-   - Use [CMake](http://cmake.org/) to configurate.
-   
-     - Set `CMAKE_INSTALL_PREFIX`, `CMAKE_INSTALL_DIR`.
-     
-     - Set `INCLUDE_INSTALL_DIR`, `LIB_INSTALL_DIR`, `DOC_INSTALL_DIR`.
-     
-     - Check `RAPIDJSON_BUILD_CXX17`, uncheck `RAPIDJSON_BUILD_CXX11`.
-     
-     - Uncheck `RAPIDJSON_BUILD_DOC`, `RAPIDJSON_BUILD_EXAMPLES`, `RAPIDJSON_BUILD_TESTS`.
-     
-     - Modify other options as you need.
-   
-   - Generate, go to the generated path, and
-   
-       ```sh
-       make
-       make install
-       ```
-   
-   - Check `<CMAKE_INSTALL_PREFIX>/include/rapidjson` has headers inside.
-   
-   - *FYI: Since RapidJSON is header-only, just copy `include/rapidjson` from source code might also work. No need to bother CMake.*
+  or download
 
-2. **Compile mangoct.**
+  ```
+  https://github.com/z0gSh1u/mangoct/archive/refs/heads/cmake.zip
+  ```
 
-   - Clone or download
+- Use [CMake](http://cmake.org/) to configure
 
-     ```sh
-     git clone git@github.com:z0gSh1u/mangoct-linux.git
-     # or `wget` the zip file
-     ```
+  - Set `CMAKE_CUDA_COMPILER` to your `nvcc`, configure.
 
-   - Use [CMake](http://cmake.org/) to configurate.
+  - Check the correct CUDA is selected if there are multiple CUDAs on your system. Most `CUDA_*_LIBRARY` should points to somewhere in your CUDA installation path.
 
-     - Set `CUDA_TOOLKIT_ROOT_DIR` to somewhere `/usr/local/cuda-*.*`, configure.
+  - Set `CMAKE_INSTALL_PREFIX` to the path where compiled binary files should be saved.
 
-     - Set `CMAKE_CUDA_COMPILER` according to `CUDA_NVCC_EXECUTABLE`, configure.
+  - *Maybe* you need to remove `stdc++fs` library link if your compiler fully supports `<filesystem>` header with only `-std=c++17` flag.
 
-     - Set `CUDA_TOOLKIT_ROOT_DIR` again, configure. Make sure the right CUDA is selected if there are multiple CUDAs on your system. Most `CUDA_*_LIBRARY` should points to somewhere in your CUDA installation path.
+    ```cmake
+    # mgfpj/CMakeLists.txt and mgfbp/CMakeLists.txt
+    target_link_libraries(<project_name>
+        ${CUDA_LIBRARIES}
+        stdc++fs # Remove this line for GCC > 8.2 which fully supports <filesystem>
+    )
+    ```
+  
+- Generate, go to the generated folder, and
 
-     - Set `CMAKE_INSTALL_PREFIX` to the path compiled binary file should be saved.
+  ```sh
+  make
+  make install
+  ```
 
-     - RapidJSON should be automatically found by CMake. If not, set `RapidJSON_DIR` yourself.
-
-     - You may need to remove `stdc++fs` library link if your compiler fully supports `<filesystem>` header with only `-std=c++17` flag.
-
-       ```cmake
-       # mgfpj/CMakeLists.txt and mgfbp/CMakeLists.txt
-       target_link_libraries(<project_name>
-           rapidjson
-           ${CUDA_LIBRARIES}
-           stdc++fs # Remove this line for GCC > 8.2 which fully supports <filesystem>
-       )
-       ```
-
-     - Modify other options as you need.
-
-   - Generate, go to the generated path, and
-
-     ```sh
-     make
-     make install
-     ```
-
-   - Congratulations! mangoct executables (mgfpj, mgfbp) will compile to `<CMAKE_INSTALL_PREFIX>/bin/`.
+- mangoct executables (mgfpj, mgfbp) will compile to `<CMAKE_INSTALL_PREFIX>/bin/`
 
 ## Usage
 
-Please refer to the [upstream Windows version of mangoct](https://github.com/ustcfdm/mangoct) for detail.
+Please refer to the [latest upstream Windows version of mangoct](https://gitee.com/njjixu/mangoct) for detail.
 
 - Forward projection using mgfpj.
 
@@ -107,7 +71,5 @@ Please refer to the [upstream Windows version of mangoct](https://github.com/ust
 
 ## Current Upstream Version
 
-mangoct-linux is forked from [ustcfdm/mangoct](https://github.com/ustcfdm/mangoct). To support Linux compilation, some breaking modifications are made, so `Fetch upstream` and `git cherry-pick` doesn't work quite well. The upstream updates are manually merged into mangoct-linux periodically.
-
-Current version is up to upstream commit [8091b5d207de577413bdc52b19e6b844ee943ef0](https://github.com/ustcfdm/mangoct/commit/8091b5d207de577413bdc52b19e6b844ee943ef0).
+mangoct now use [gitee.com/njjixu/mangoct](https://gitee.com/njjixu/mangoct) as upstream and shares commit histories. It's up-to-date now (1.2).
 
