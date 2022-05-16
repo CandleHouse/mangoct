@@ -45,6 +45,8 @@ namespace mango
 
 		bool pmatrixFlag;					// whether the pmatrix is applied
 		std::string pmatrixFile;			// file of the pmatrix
+		float pmatrixDetEltSize = detEltSize;	// physical size of detector element when pmatrix calibration is performed [mm]
+												// is the same with delEltSize by DEFAULT
 
 		/*********************************************************
 		* reconstruction parameters

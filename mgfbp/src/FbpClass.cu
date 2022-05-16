@@ -382,6 +382,15 @@ void mango::FbpClass::ReadConfigFile(const char * filename)
 		config.converToHU = false;
 	}
 
+	if (doc.HasMember("PmatrixDetectorElementSize"))
+	{
+		config.pmatrixDetEltSize = doc["PmatrixDetectorElementSize"].GetFloat();
+	}
+	else
+	{
+		config.pmatrixDetEltSize = config.detEltSize;
+	}
+
 }
 
 void mango::FbpClass::InitParam()

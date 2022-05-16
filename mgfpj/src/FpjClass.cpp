@@ -229,9 +229,13 @@ void mango::FpjClass::ReadConfigFile(const char * filename)
 	{
 		printf("--FULL scan--\n");
 	}
-	else
+	else if (abs(config.totalScanAngle) < 360.0f)
 	{
 		printf("--SHORT scan (%.1f degrees)--\n", config.totalScanAngle);
+	}
+	else
+	{
+		printf("--Long scan (%.1f degrees)--\n", config.totalScanAngle);
 	}
 
 	config.detEltCount = doc["DetectorElementCount"].GetInt();
@@ -295,6 +299,22 @@ void mango::FpjClass::ReadConfigFile(const char * filename)
 	{
 		config.converToHU = false;
 	}
+#pragma endregion
+
+#pragma region helical scan parameters
+
+	if (doc.HasMember("HelicalPitch"))
+	{
+		config.helicalScan = true;
+		config.helicalPitch = doc["HelicalPitch"].GetFloat();
+		printf("--Helical scan (Pitch = %.2f)--\n", config.helicalPitch);
+	}
+	else
+	{
+		config.helicalScan = false;
+		config.helicalPitch = 0;
+	}
+
 #pragma endregion
 }
 

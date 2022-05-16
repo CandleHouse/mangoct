@@ -46,17 +46,17 @@ __global__ void InitBeta(float* beta, const int V, const float startAngle, const
 // sid: source to isocenter distance
 // sdd: source to detector distance
 __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const float* u, const float *v, const float* offcenter_array, const float* beta, const float* swing_angle_array, int M, int S,\
-	int N, int N_z, int V, float dx, float dz, const float* sid_array, const float* sdd_array, bool conebeam, \
+	int N, int N_z, int V, float dx, float dz,  const float* sid_array, const float* sdd_array, bool conebeam, bool helican_scan, float helical_pitch,\
 	int z_element_begin_idx, int z_element_end_idx)
 {
-	int col = threadIdx.x + blockDim.x * blockIdx.x;
-	int row = threadIdx.y + blockDim.y * blockIdx.y;
-
+	int col = threadIdx.x + blockDim.x * blockIdx.x;//column is direction of elements
+	int row = threadIdx.y + blockDim.y * blockIdx.y;//row is direction of views
+	//function is parallelly run for each element in each view
 
 	if (col < N && row < V && z_element_end_idx <= N_z)
 	{
 		// half of image side length
-		float D = M * dx / 2.0f;
+		float D = float(M)  * dx / 2.0f;
 		// half of image thickness
 		float D_z = 0.0f;
 		if (conebeam)
@@ -67,6 +67,8 @@ __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const f
 		{
 			dz = 0;
 		}
+
+
 		//get the sid and sdd for a given view
 		float sid = sid_array[row];
 		float sdd = sdd_array[row];
@@ -104,7 +106,18 @@ __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const f
 		float z0 = 0;
 		if (conebeam)
 		{
-			z0 = -D_z + dz / 2.0f;// first slice is at the bottom
+			z0 = -D_z + dz / 2.0f;// first slice is at the bottom, coordinate is -D_z +dz/2
+			// last slice is at the top, coordinate is D_z -dz/2
+		}
+
+		float z_dis_per_view = 0;
+		if (helican_scan)// for helical scan, we need to calculate the distance of the movement along the z direction between views
+		{	
+			float total_scan_angle = abs((beta[V - 1] - beta[0])) / float(V - 1)*float(V);
+			float num_laps = total_scan_angle / (PI *2);
+			z_dis_per_view = helical_pitch * (num_laps / V) * (abs(v[1]-v[0])*N_z) / (sdd / sid);
+			//distance moved per view is pitch * lap per view * detector height / magnification
+
 		}
 
 		// repeat for each slice
@@ -115,21 +128,28 @@ __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const f
 			sgm[row*N + col] = 0;
 			if (conebeam)
 			{
-				
 				zd = v[slice];
-				
 				sed = sqrtf((xs - xd)*(xs - xd) + (ys - yd)*(ys - yd) + (zs - zd)*(zs - zd));
 			}
 
 			// calculate line integration
-			for (float L = L_min; L <= L_max; L+= STEPSIZE*sqrt(dx*dx+dz*dz/2.0f))
+			for (float L = L_min; L <= L_max; L+= STEPSIZE*dx)
 			{
+				// ratio of [distance: current position to source] to [distance: source to element]
+				float ratio_L_sed = L / sed;
+
 				// get the current point position 
-				x = xs + (xd - xs) * L / sed;
-				y = ys + (yd - ys) * L / sed;
-				if (conebeam)
+				x = xs + (xd - xs) * ratio_L_sed;
+				y = ys + (yd - ys) * ratio_L_sed;
+				if (conebeam)// for cone beam, we need to calculate the z position
 				{
-					z = zs + (zd - zs) * L / sed;
+					z = zs + (zd - zs) * ratio_L_sed;
+				}
+
+				if (helican_scan)
+				{
+					z = z + z0 + row * z_dis_per_view;
+					//for helical scan, if the image object is treated as stationary, both the detector and the source should move upward
 				}
 
 				// get the current point index
@@ -137,7 +157,7 @@ __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const f
 				ky = floorf((y0 - y) / dx);
 
 				if (conebeam)
-					kz = floorf((z - z0) / dz);
+					kz = roundf((z - z0) / dz);// floorf((z - z0) / dz);
 
 				// get the image pixel value at the current point
 				if(kx>=0 && kx+1<M && ky>=0 && ky+1<M)
@@ -156,6 +176,7 @@ __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const f
 					}
 					else if (conebeam == true && kz >= 0 && kz + 1 < S)
 					{
+						/*
 						wz = (z - kz * dz - z0) / dz;
 						float sgm_val_lowerslice = (1 - wx)*(1 - wy)*img[ky*M + kx + M * M*kz] // upper left
 							+ wx * (1 - wy) * img[ky*M + kx + 1 + M * M*kz] // upper right
@@ -164,15 +185,24 @@ __global__ void ForwardProjectionBilinear_device(float* img, float* sgm, const f
 						float sgm_val_upperslice = (1 - wx)*(1 - wy)*img[ky*M + kx + M * M*(kz+1)] // upper left
 							+ wx * (1 - wy) * img[ky*M + kx + 1 + M * M*(kz + 1)] // upper right
 							+ (1 - wx) * wy * img[(ky + 1)*M + kx + M * M*(kz + 1)] // bottom left
-							+ wx * wy * img[(ky + 1)*M + kx + 1 + M * M*(kz + 1)];	// bottom right
+							+ wx * wy * img[(ky + 1)*M + kx + 1 + M * M*(kz + 1)];	// bottom right 
+							*/
 
-						sgm[row*N + col] += (1 - wz)*sgm_val_lowerslice + wz * sgm_val_upperslice;
+						float sgm_val_temp = (1 - wx)*(1 - wy)*img[ky*M + kx + M * M*kz] // upper left
+							+ wx * (1 - wy) * img[ky*M + kx + 1 + M * M*kz] // upper right
+							+ (1 - wx) * wy * img[(ky + 1)*M + kx + M * M*kz] // bottom left
+							+ wx * wy * img[(ky + 1)*M + kx + 1 + M * M*kz];	// bottom right
+
+
+
+
+						sgm[row*N + col] += sgm_val_temp;//(1 - wz)*sgm_val_lowerslice + wz * sgm_val_upperslice;
 					}
 					
 				}
 			}
 
-			sgm[row*N + col] *= STEPSIZE * sqrt(dx*dx + dz * dz);
+			sgm[row*N + col] *= STEPSIZE * dx;
 
 		}
 	}
@@ -477,7 +507,8 @@ void ForwardProjectionBilinear_Agent(float *& image, float * &sinogram, const fl
 	dim3 block(8, 8);
 
 	ForwardProjectionBilinear_device<<<grid, block>>>(image, sinogram, u, v, offcenter_array, beta, swing_angle_array, config.imgDim, config.sliceCount,\
-		config.detEltCount*config.oversampleSize, config.detZEltCount, config.views, config.pixelSize, config.sliceThickness, sid_array, sdd_array, config.coneBeam, z_element_idx, z_element_idx+1);
+		config.detEltCount*config.oversampleSize, config.detZEltCount, config.views, config.pixelSize, config.sliceThickness,  sid_array, sdd_array, config.coneBeam, \
+		config.helicalScan, config.helicalPitch,  z_element_idx, z_element_idx+1);
 
 	cudaDeviceSynchronize();
 }
