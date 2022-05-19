@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-project(mgfpj CXX CUDA)
+project(mgfbp CXX CUDA)
 
 set(SOURCES
     src/mgfbp.cpp
