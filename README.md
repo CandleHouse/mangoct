@@ -6,6 +6,8 @@
 
 This is a fork version of [mangoct](https://github.com/ustcfdm/mangoct) tomography reconstruction toolkit, with compilation toolchain transferred from Visual Studio to cross-platform CMake. Then, **working on Linux is possible**. And since no OS related libraries and features are used, **this might also compile on Windows** (but not tested yet).
 
+**⚠️ ARCHIVED** Please refer to [mandoct](https://github.com/CandleHouse/mandoct) for future updates. ⚠️
+
 ## Prerequisites
 
 - GCC with `<filesystem>` or `<experimental/filesystem>` and C++ 17 support
